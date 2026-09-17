@@ -27,7 +27,7 @@ h1{font-size:clamp(34px,7vw,62px);line-height:1.02;margin:10px 0;background:line
 .stat{padding:18px;border-radius:22px;background:rgba(255,255,255,.045);text-align:center}
 .stat b{display:block;font-size:25px}.stat span{color:var(--muted);font-size:12px}
 .bar{height:12px;border-radius:20px;background:#332a37;overflow:hidden}.fill{height:100%;width:0;background:linear-gradient(90deg,#ff65ad,#c69aff);transition:.35s}
-.controls{display:grid;grid-template-columns:1fr auto auto;gap:10px;margin:18px 0}.controls.order-controls{grid-template-columns:1fr auto auto}.order-note{margin:-8px 0 12px;color:var(--muted);font-size:11px}.order-note b{color:#ffafd4}.timeline-mode .date::before{content:"Scheduled: ";color:#8f8192}
+.controls{display:grid;grid-template-columns:1fr auto auto;gap:10px;margin:18px 0}.controls.order-controls{grid-template-columns:1fr 1fr}.order-note{margin:-8px 0 12px;color:var(--muted);font-size:11px}.order-note b{color:#ffafd4}.timeline-mode .date::before{content:"Scheduled: ";color:#8f8192}
 input,button,select{font:inherit}
 input{width:100%;background:#171219;border:1px solid var(--outline);color:var(--text);border-radius:18px;padding:14px 16px;outline:none}
 button{border:1px solid var(--outline);background:#302532;color:var(--text);border-radius:18px;padding:12px 15px;cursor:pointer;font-weight:700}
@@ -154,10 +154,10 @@ footer{padding:20px 0 60px;color:#a99baa;text-align:center;font-size:12px}
 <button id="hide">Hide watched</button>
 </div>
 <div class="controls order-controls">
-<button class="order-btn" id="releaseOrderBtn">Release Order</button>
+<button class="order-btn active" id="releaseOrderBtn">Release Order</button>
 <button id="orderToggle">Timeline order</button>
-<div id="orderNote" class="order-note" style="margin:0;align-self:center">Release order • your fixed 62-day schedule</div>
 </div>
+<div id="orderNote" class="order-note">Release order • your fixed 62-day schedule</div>
 <div class="controls" style="grid-template-columns:repeat(3,1fr)">
 <button id="reset">Reset progress</button><button id="share">Share progress</button><button id="core">Show all</button>
 </div>
@@ -243,13 +243,15 @@ document.getElementById("hide").onclick=()=>{hideWatched=!hideWatched;document.g
 document.getElementById("all").onclick=()=>{q="";document.getElementById("search").value="";hideWatched=false;document.getElementById("hide").textContent="Hide watched";render()};
 document.getElementById("core").onclick=()=>{q="";document.getElementById("search").value="";render()};
 document.getElementById("orderToggle").onclick=()=>{
- timelineMode=!timelineMode;
- localStorage.setItem("rdTimelineMode",timelineMode?"1":"0");
+ timelineMode=true;
+ localStorage.setItem("rdTimelineMode","1");
  const btn=document.getElementById("orderToggle");
+ const releaseBtn=document.getElementById("releaseOrderBtn");
  const note=document.getElementById("orderNote");
- btn.textContent=timelineMode?"Release order":"Timeline order";
- btn.classList.toggle("active",timelineMode);
- note.innerHTML=timelineMode?"<b>Timeline order</b> • approximate in-universe chronology; legacy universes are grouped separately":"Release order • your fixed 62-day schedule";
+ btn.textContent="Timeline order";
+ btn.classList.add("active");
+ releaseBtn.classList.remove("active");
+ note.innerHTML="<b>Timeline order</b> • approximate in-universe chronology; legacy universes are grouped separately";
  render();
  window.scrollTo({top:document.querySelector("#grid")?.offsetTop-90||0,behavior:"smooth"});
 };
@@ -313,9 +315,21 @@ window.addEventListener("focus",updateDoomsdayCountdown);
 update();
 const initialOrderButton=document.getElementById("orderToggle");
 const initialOrderNote=document.getElementById("orderNote");
-initialOrderButton.textContent=timelineMode?"Release order":"Timeline order";
+initialOrderButton.textContent="Timeline order";
 initialOrderButton.classList.toggle("active",timelineMode);
-initialOrderNote.innerHTML=timelineMode?"<b>Timeline order</b> • approximate in-universe chronology; legacy universes are grouped separately":"Release order • your fixed 62-day schedule"; document.getElementById("releaseOrderBtn").onclick=()=>{if(timelineMode) document.getElementById("orderToggle").click();};
+initialOrderNote.innerHTML=timelineMode?"<b>Timeline order</b> • approximate in-universe chronology; legacy universes are grouped separately":"Release order • your fixed 62-day schedule"; document.getElementById("releaseOrderBtn").onclick=()=>{
+ timelineMode=false;
+ localStorage.setItem("rdTimelineMode","0");
+ const btn=document.getElementById("orderToggle");
+ const releaseBtn=document.getElementById("releaseOrderBtn");
+ const note=document.getElementById("orderNote");
+ btn.textContent="Timeline order";
+ btn.classList.remove("active");
+ releaseBtn.classList.add("active");
+ note.innerHTML="Release order • your fixed 62-day schedule";
+ render();
+ window.scrollTo({top:document.querySelector("#grid")?.offsetTop-90||0,behavior:"smooth"});
+};
 render();
 </script>
 </body>
