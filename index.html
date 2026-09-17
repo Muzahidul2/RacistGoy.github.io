@@ -4,7 +4,14 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="theme-color" content="#201126">
-<meta name="description" content="Road to Avengers: Doomsday — 63-day personal watch tracker.">
+<meta name="description" content="Road to Avengers: Doomsday — 63-day community watch tracker.">
+<link rel="icon" href="./favicon.svg" type="image/svg+xml">
+<link rel="icon" href="./icons/icon-32.png" sizes="32x32" type="image/png">
+<link rel="apple-touch-icon" href="./icons/icon-180.png">
+<link rel="manifest" href="./manifest.webmanifest">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Road to Doomsday">
 <title>Road to Avengers: Doomsday</title>
 <style>
 :root{
@@ -20,14 +27,16 @@ body{margin:0;background:
 .container{width:min(1120px,calc(100% - 28px));margin:auto}
 .hero{padding:54px 0 24px;text-align:center}
 .eyebrow{color:var(--primary);font-weight:800;letter-spacing:.14em;text-transform:uppercase;font-size:12px}
-h1{font-size:clamp(34px,7vw,62px);line-height:1.02;margin:10px 0;background:linear-gradient(110deg,#fff,#ff9dce 45%,#cba0ff);-webkit-background-clip:text;color:transparent}
+h1{font-size:clamp(34px,7vw,62px);line-height:1.16;margin:10px 0 .22em;padding:0 .04em .08em;display:inline-block;background:linear-gradient(110deg,#fff,#ff9dce 45%,#cba0ff);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;color:transparent}
 .subtitle{color:var(--muted);max-width:720px;margin:auto;font-size:16px}
 .panel{background:linear-gradient(145deg,rgba(38,30,43,.94),rgba(29,23,33,.94));border:1px solid var(--outline);border-radius:var(--radius);box-shadow:var(--shadow);padding:20px}
 .stats{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin:20px 0}
 .stat{padding:18px;border-radius:22px;background:rgba(255,255,255,.045);text-align:center}
 .stat b{display:block;font-size:25px}.stat span{color:var(--muted);font-size:12px}
 .bar{height:12px;border-radius:20px;background:#332a37;overflow:hidden}.fill{height:100%;width:0;background:linear-gradient(90deg,#ff65ad,#c69aff);transition:.35s}
-.controls{display:grid;grid-template-columns:1fr auto auto;gap:10px;margin:18px 0}.controls.order-controls{grid-template-columns:1fr 1fr}.order-note{margin:-8px 0 12px;color:var(--muted);font-size:11px}.order-note b{color:#ffafd4}.timeline-mode .date::before{content:"Scheduled: ";color:#8f8192}
+.controls{display:grid;grid-template-columns:1fr auto auto;gap:10px;margin:18px 0}
+.install-btn{border:1px solid var(--outline);background:linear-gradient(135deg,rgba(255,123,189,.22),rgba(203,160,255,.18));color:var(--text)}
+@media(max-width:700px){.controls #installApp{grid-column:1/-1}.hero{padding-top:38px}.hero h1{font-size:clamp(32px,9vw,50px)}}.controls.order-controls{grid-template-columns:1fr 1fr}.order-note{margin:-8px 0 12px;color:var(--muted);font-size:11px}.order-note b{color:#ffafd4}.timeline-mode .date::before{content:"Scheduled: ";color:#8f8192}
 input,button,select{font:inherit}
 input{width:100%;background:#171219;border:1px solid var(--outline);color:var(--text);border-radius:18px;padding:14px 16px;outline:none}
 button{border:1px solid var(--outline);background:#302532;color:var(--text);border-radius:18px;padding:12px 15px;cursor:pointer;font-weight:700}
@@ -151,7 +160,7 @@ footer{padding:20px 0 60px;color:#a99baa;text-align:center;font-size:12px}
 <div class="controls">
 <input id="search" placeholder="Search the 63-day watchlist…" autocomplete="off">
 <button id="all" class="active">All</button>
-<button id="hide">Hide watched</button>
+<button id="hide">Hide watched</button><button id="installApp" class="install-btn" style="display:none">Install app</button>
 </div>
 <div class="controls order-controls">
 <button class="order-btn active" id="releaseOrderBtn">Release Order</button>
@@ -324,6 +333,30 @@ initialOrderNote.innerHTML=timelineMode?"<b>Timeline order</b> • approximate i
  window.scrollTo({top:document.querySelector("#grid")?.offsetTop-90||0,behavior:"smooth"});
 };
 render();
+/* PWA install support */
+let deferredInstallPrompt = null;
+const installAppButton = document.getElementById("installApp");
+window.addEventListener("beforeinstallprompt", (event) => {
+  event.preventDefault();
+  deferredInstallPrompt = event;
+  if (installAppButton) installAppButton.style.display = "inline-flex";
+});
+if (installAppButton) {
+  installAppButton.addEventListener("click", async () => {
+    if (!deferredInstallPrompt) return;
+    deferredInstallPrompt.prompt();
+    await deferredInstallPrompt.userChoice;
+    deferredInstallPrompt = null;
+    installAppButton.style.display = "none";
+  });
+}
+window.addEventListener("appinstalled", () => {
+  if (installAppButton) installAppButton.style.display = "none";
+});
+if ("serviceWorker" in navigator) {
+  window.addEventListener("load", () => navigator.serviceWorker.register("./sw.js").catch(console.error));
+}
+
 </script>
 </body>
 </html>
