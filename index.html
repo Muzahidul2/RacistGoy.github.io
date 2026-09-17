@@ -1,16 +1,13 @@
 <!doctype html>
 <html lang="en">
-<head> <link rel="icon" href="./favicon.svg" type="image/svg+xml">
-<link rel="icon" href="./icon-32.png" sizes="32x32" type="image/png">
-<link rel="apple-touch-icon" href="./icon-180.png">
-<link rel="manifest" href="./manifest.webmanifest">
+<head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="theme-color" content="#201126">
 <meta name="description" content="Road to Avengers: Doomsday — 63-day community watch tracker.">
 <link rel="icon" href="./favicon.svg" type="image/svg+xml">
-<link rel="icon" href="./icons/icon-32.png" sizes="32x32" type="image/png">
-<link rel="apple-touch-icon" href="./icons/icon-180.png">
+<link rel="icon" href="./icon-32.png" sizes="32x32" type="image/png">
+<link rel="apple-touch-icon" href="./icon-180.png">
 <link rel="manifest" href="./manifest.webmanifest">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -68,7 +65,7 @@ button:hover{border-color:var(--primary)}.active{background:linear-gradient(100d
 .imdb-score{color:#f6d35f}.rt-score{color:#ff6f6f}
 .rt-meter{height:4px;border-radius:999px;background:#33272d;overflow:hidden;margin-top:2px}
 .rt-fill{height:100%;border-radius:999px;background:#ff5b5b}
-.credit-tag{border-color:#4e6381!important;background:rgba(102,178,255,.08)!important;color:#a9d8ff!important}
+.thanks-ai{color:#ff9bd0;font-weight:800}.credit-tag{border-color:#4e6381!important;background:rgba(102,178,255,.08)!important;color:#a9d8ff!important}
 @media(max-width:600px){.ratingbox{flex:0 0 88px;padding-left:4px}.rating-item{font-size:8px}.rt-meter{height:3px}}
 
 .check{width:20px;height:20px;accent-color:#ff7bbd;flex:0 0 auto;margin-top:3px}
@@ -125,16 +122,16 @@ footer{padding:20px 0 60px;color:#a99baa;text-align:center;font-size:12px}
 <body>
 <div class="container">
 <header class="hero">
-<div class="eyebrow">Dynamic Monet • Personal Watch Tracker</div>
+<div class="eyebrow">Community Watch Tracker</div>
 <h1>Road to Avengers: Doomsday</h1>
 <p class="subtitle">63 days of selected MCU and legacy essentials, from October 1 through December 1, 2026.</p>
 </header>
 
 <section class="panel">
 <div class="stats">
-<div class="stat"><b id="count">0 / 62</b><span>completed</span></div>
+<div class="stat"><b id="count">0 / 63</b><span>completed</span></div>
 <div class="stat"><b id="percent">0%</b><span>progress</span></div>
-<div class="stat"><b id="left">62</b><span>remaining</span></div>
+<div class="stat"><b id="left">63</b><span>remaining</span></div>
 </div>
 <div class="bar"><div class="fill" id="fill"></div></div>
 </section>
@@ -176,7 +173,7 @@ footer{padding:20px 0 60px;color:#a99baa;text-align:center;font-size:12px}
 
 <main class="grid" id="grid"><div class="rating-note">IMDb and Rotten Tomatoes scores are displayed as current snapshots and may change over time.</div></main>
 
-<footer>Fan-made community watch tracker. No movie footage, logos, or copyrighted artwork are used. Not affiliated with Marvel Studios or Disney.</footer>
+<footer>Fan-made community watch tracker. No movie footage, logos, or copyrighted artwork are used. Not affiliated with Marvel Studios or Disney.<br><br><span class="thanks-ai">Thanks AI.</span></footer>
 </div>
 
 <script>
@@ -235,11 +232,11 @@ let bonusDone=localStorage.getItem("doomsday-quantumania-bonus")==="1";
 
 function save(){localStorage.setItem(key,JSON.stringify(done));update();render();renderBonus()}
 function update(){
- done=[...new Set(done)].filter(i=>i>=0&&i<62);
- const n=done.length,p=Math.round(n/62*100);
- document.getElementById("count").textContent=n+" / 62";
+ done=[...new Set(done)].filter(i=>i>=0&&i<63);
+ const n=done.length,p=Math.round(n/63*100);
+ document.getElementById("count").textContent=n+" / 63";
  document.getElementById("percent").textContent=p+"%";
- document.getElementById("left").textContent=62-n;
+ document.getElementById("left").textContent=63-n;
  document.getElementById("fill").style.width=p+"%";
 }
 function esc(s){return s.replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[m]))}
