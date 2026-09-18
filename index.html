@@ -241,11 +241,10 @@ function setOrder(mode){orderMode=mode;document.getElementById("scheduleOrder").
 document.getElementById("scheduleOrder").onclick=()=>setOrder("preferred");
 document.getElementById("releaseOrder").onclick=()=>setOrder("release");
 document.getElementById("timelineOrder").onclick=()=>setOrder("timeline");
-/* Official-style Doomsday countdown.
-   Marvel's live Doomsday Clock counts down to December 18, 2026.
-   Use a fixed UTC target so the countdown is not shifted by the visitor's
-   local timezone. This keeps the clock aligned across devices and countries. */
-const DOOMSDAY_TARGET = Date.parse("2026-12-18T00:00:00Z");
+/* Live Doomsday countdown.
+   Matches the Road to Doomsday-style local-midnight countdown: December 18, 2026.
+   Date.now() is used on every update, so the clock stays synced to the browser's real current time without accumulating interval drift. */
+const DOOMSDAY_TARGET = new Date(2026, 11, 18, 0, 0, 0, 0).getTime();
 
 function updateDoomsdayCountdown(){
   const remaining = DOOMSDAY_TARGET - Date.now();
@@ -270,7 +269,7 @@ function updateDoomsdayCountdown(){
   document.getElementById("cdSeconds").textContent = String(seconds).padStart(2,"0");
 
   document.getElementById("countdownStatus").textContent =
-    "Official release countdown • updates every second";
+    "Live countdown • updates every second";
 }
 
 updateDoomsdayCountdown();
