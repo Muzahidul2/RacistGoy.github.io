@@ -43,6 +43,9 @@ button:hover{border-color:var(--primary)}.active{background:linear-gradient(100d
 .live-dot{display:flex;align-items:center;gap:7px;border:1px solid #1b5a30;border-radius:999px;padding:8px 11px;color:#baf5c8;font-size:11px;font-weight:800;letter-spacing:.08em;white-space:nowrap}
 .live-dot span{width:7px;height:7px;border-radius:50%;background:#39ff14;box-shadow:0 0 12px #39ff14;animation:livepulse 1.2s infinite}
 .countdown-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+.detailed-countdown{grid-template-columns:repeat(5,1fr)}
+.detailed-countdown .count-unit strong{font-variant-numeric:tabular-nums}
+
 .count-unit{min-width:0;text-align:center;padding:16px 8px;border-radius:20px;background:linear-gradient(145deg,rgba(255,123,189,.09),rgba(205,154,255,.06));border:1px solid #4c3d50}
 .count-unit strong{display:block;font-size:clamp(25px,5vw,42px);line-height:1;font-variant-numeric:tabular-nums;letter-spacing:-.03em}
 .count-unit span{display:block;color:#a9c7b0;font-size:9px;font-weight:800;letter-spacing:.12em;margin-top:8px}
@@ -102,7 +105,13 @@ footer{padding:20px 0 60px;color:#7fa28a;text-align:center;font-size:12px}
 </style>
 
 
-<style>.saga-label{grid-column:1/-1;margin:18px 0 2px;padding:10px 14px;border:1px solid #39ff14;border-radius:12px;background:linear-gradient(90deg,rgba(57,255,20,.10),rgba(0,255,136,.04));color:#72ff9a;font-size:12px;font-weight:900;letter-spacing:.14em;text-transform:uppercase;box-shadow:0 0 12px rgba(57,255,20,.16),inset 0 0 10px rgba(57,255,20,.05)}</style></head>
+<style>.saga-label{grid-column:1/-1;margin:18px 0 2px;padding:10px 14px;border:1px solid #39ff14;border-radius:12px;background:linear-gradient(90deg,rgba(57,255,20,.10),rgba(0,255,136,.04));color:#72ff9a;font-size:12px;font-weight:900;letter-spacing:.14em;text-transform:uppercase;box-shadow:0 0 12px rgba(57,255,20,.16),inset 0 0 10px rgba(57,255,20,.05)}
+.youtube-clock-wrap{position:relative;width:100%;aspect-ratio:16/9;margin-top:18px;overflow:hidden;border:1px solid #174d28;border-radius:18px;background:#020b05;box-shadow:0 0 18px rgba(57,255,20,.10)}
+.youtube-clock-wrap iframe{display:block;width:100%;height:100%;border:0}
+.countdown-grid.official-style{grid-template-columns:minmax(0,1fr)}
+.count-unit.days-only{max-width:360px;margin:0 auto;width:100%}
+@media(max-width:760px){.youtube-clock-wrap{border-radius:14px}.count-unit.days-only{max-width:none}}
+</style></head>
 <body>
 
 <div class="container">
@@ -132,24 +141,25 @@ footer{padding:20px 0 60px;color:#7fa28a;text-align:center;font-size:12px}
 </div>
 
 <main class="grid" id="grid"></main>
-<section class="clock panel" aria-label="Avengers Doomsday countdown">
+<section class="clock panel detailed-clock" aria-label="Avengers Doomsday detailed countdown">
   <div class="countdown-head">
     <div>
-      <div class="eyebrow">COUNTDOWN</div>
+      <div class="eyebrow">LIVE COUNTDOWN</div>
       <h2>Avengers: Doomsday</h2>
-      <p>December 18, 2026</p>
+      <p>Synced to AvengersCountdown.com • December 18, 2026 at 05:00 UTC</p>
     </div>
     <div class="live-dot"><span></span> LIVE CLOCK</div>
   </div>
 
-  <div class="countdown-grid official-style" id="doomsdayCountdown">
-    <div class="count-unit"><strong id="cdDays">0</strong><span>DAYS</span></div>
-    <div class="count-unit"><strong id="cdHours">0</strong><span>HOURS</span></div>
-    <div class="count-unit"><strong id="cdMinutes">0</strong><span>MINUTES</span></div>
-    <div class="count-unit"><strong id="cdSeconds">0</strong><span>SECONDS</span></div>
+  <div class="countdown-grid detailed-countdown" id="detailedDoomsdayCountdown">
+    <div class="count-unit"><strong id="detailMonths">0</strong><span>MONTHS</span></div>
+    <div class="count-unit"><strong id="detailDays">0</strong><span>DAYS</span></div>
+    <div class="count-unit"><strong id="detailHours">0</strong><span>HOURS</span></div>
+    <div class="count-unit"><strong id="detailMinutes">0</strong><span>MIN</span></div>
+    <div class="count-unit"><strong id="detailSeconds">0</strong><span>SEC</span></div>
   </div>
 
-  <div class="countdown-status" id="countdownStatus">Calculating live time remaining…</div>
+  <div class="countdown-status" id="detailCountdownStatus">Live • synchronized to the same UTC target as AvengersCountdown.com</div>
 </section>
 
 <footer>Thanks Muzahidul</footer>
@@ -241,43 +251,80 @@ function setOrder(mode){orderMode=mode;document.getElementById("scheduleOrder").
 document.getElementById("scheduleOrder").onclick=()=>setOrder("preferred");
 document.getElementById("releaseOrder").onclick=()=>setOrder("release");
 document.getElementById("timelineOrder").onclick=()=>setOrder("timeline");
-/* Live Doomsday countdown.
-   Matches the Road to Doomsday-style local-midnight countdown: December 18, 2026.
-   Date.now() is used on every update, so the clock stays synced to the browser's real current time without accumulating interval drift. */
-const DOOMSDAY_TARGET = new Date(2026, 11, 18, 0, 0, 0, 0).getTime();
+/* Live Doomsday countdowns.
+   AvengersCountdown.com states that its live countdown is synchronized to
+   December 18, 2026 at 05:00 UTC. Both clocks below use that exact same
+   absolute UTC target and calculate from Date.now() on every update, so the
+   values do not drift or depend on the interval accumulating time. */
+const DOOMSDAY_TARGET = Date.parse("2026-12-18T05:00:00Z");
 
-function updateDoomsdayCountdown(){
+function updateDoomsdayCountdowns(){
   const remaining = DOOMSDAY_TARGET - Date.now();
-  const ids = ["cdDays","cdHours","cdMinutes","cdSeconds"];
 
   if(remaining <= 0){
-    ids.forEach(id=>document.getElementById(id).textContent="0");
-    document.getElementById("countdownStatus").textContent =
-      "Avengers: Doomsday is here.";
+    document.getElementById("detailMonths").textContent = "0";
+    document.getElementById("detailDays").textContent = "0";
+    document.getElementById("detailHours").textContent = "0";
+    document.getElementById("detailMinutes").textContent = "0";
+    document.getElementById("detailSeconds").textContent = "0";
+    document.getElementById("detailCountdownStatus").textContent = "Avengers: Doomsday is here.";
     return;
   }
 
-  let ms = remaining;
-  const days = Math.floor(ms / 86400000); ms -= days * 86400000;
-  const hours = Math.floor(ms / 3600000); ms -= hours * 3600000;
-  const minutes = Math.floor(ms / 60000); ms -= minutes * 60000;
-  const seconds = Math.floor(ms / 1000);
+  // Match the calendar-style month/day/hour/min/sec presentation while
+  // retaining the exact same absolute target used by AvengersCountdown.com.
+  const now = new Date();
+  const target = new Date(DOOMSDAY_TARGET);
+  let months = (target.getUTCFullYear() - now.getUTCFullYear()) * 12
+             + (target.getUTCMonth() - now.getUTCMonth());
 
-  document.getElementById("cdDays").textContent = String(days);
-  document.getElementById("cdHours").textContent = String(hours).padStart(2,"0");
-  document.getElementById("cdMinutes").textContent = String(minutes).padStart(2,"0");
-  document.getElementById("cdSeconds").textContent = String(seconds).padStart(2,"0");
+  const monthAnchor = new Date(Date.UTC(
+    now.getUTCFullYear(),
+    now.getUTCMonth() + months,
+    now.getUTCDate(),
+    now.getUTCHours(),
+    now.getUTCMinutes(),
+    now.getUTCSeconds(),
+    now.getUTCMilliseconds()
+  ));
 
-  document.getElementById("countdownStatus").textContent =
-    "Live countdown • updates every second";
+  if(monthAnchor.getTime() > DOOMSDAY_TARGET) months--;
+
+  const afterMonths = new Date(Date.UTC(
+    now.getUTCFullYear(),
+    now.getUTCMonth() + months,
+    now.getUTCDate(),
+    now.getUTCHours(),
+    now.getUTCMinutes(),
+    now.getUTCSeconds(),
+    now.getUTCMilliseconds()
+  ));
+
+  let rest = DOOMSDAY_TARGET - afterMonths.getTime();
+  const days = Math.floor(rest / 86400000);
+  rest -= days * 86400000;
+  const hours = Math.floor(rest / 3600000);
+  rest -= hours * 3600000;
+  const minutes = Math.floor(rest / 60000);
+  rest -= minutes * 60000;
+  const seconds = Math.floor(rest / 1000);
+
+  document.getElementById("detailMonths").textContent = String(Math.max(0, months)).padStart(2,"0");
+  document.getElementById("detailDays").textContent = String(days).padStart(2,"0");
+  document.getElementById("detailHours").textContent = String(hours).padStart(2,"0");
+  document.getElementById("detailMinutes").textContent = String(minutes).padStart(2,"0");
+  document.getElementById("detailSeconds").textContent = String(seconds).padStart(2,"0");
+
+  document.getElementById("detailCountdownStatus").textContent =
+    "Live • synchronized to AvengersCountdown.com (UTC)";
 }
 
-updateDoomsdayCountdown();
-setInterval(updateDoomsdayCountdown,1000);
+updateDoomsdayCountdowns();
+setInterval(updateDoomsdayCountdowns,1000);
 document.addEventListener("visibilitychange",()=>{
-  if(!document.hidden) updateDoomsdayCountdown();
+  if(!document.hidden) updateDoomsdayCountdowns();
 });
-window.addEventListener("focus",updateDoomsdayCountdown);
+window.addEventListener("focus",updateDoomsdayCountdowns);
 
 update();render();
 if ("serviceWorker" in navigator) {
