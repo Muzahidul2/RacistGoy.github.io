@@ -5,8 +5,8 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="theme-color" content="#39ff14">
 <link rel="manifest" href="./manifest.json">
-<link rel="apple-touch-icon" href="./icon-192.png">
 <link rel="icon" type="image/png" sizes="192x192" href="./icon-192.png">
+<link rel="apple-touch-icon" href="./icon-192.png">
 <meta name="description" content="Road to Avengers: Doomsday — Community Watch Tracker.">
 <title>Road to Avengers: Doomsday</title>
 <style>
@@ -42,7 +42,7 @@ button:hover{border-color:var(--primary)}.active{background:linear-gradient(100d
 .countdown-head p{margin:2px 0 0;color:var(--muted)}
 .live-dot{display:flex;align-items:center;gap:7px;border:1px solid #1b5a30;border-radius:999px;padding:8px 11px;color:#baf5c8;font-size:11px;font-weight:800;letter-spacing:.08em;white-space:nowrap}
 .live-dot span{width:7px;height:7px;border-radius:50%;background:#39ff14;box-shadow:0 0 12px #39ff14;animation:livepulse 1.2s infinite}
-.countdown-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:10px}
+.countdown-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
 .count-unit{min-width:0;text-align:center;padding:16px 8px;border-radius:20px;background:linear-gradient(145deg,rgba(255,123,189,.09),rgba(205,154,255,.06));border:1px solid #4c3d50}
 .count-unit strong{display:block;font-size:clamp(25px,5vw,42px);line-height:1;font-variant-numeric:tabular-nums;letter-spacing:-.03em}
 .count-unit span{display:block;color:#a9c7b0;font-size:9px;font-weight:800;letter-spacing:.12em;margin-top:8px}
@@ -80,7 +80,7 @@ button:hover{border-color:var(--primary)}.active{background:linear-gradient(100d
 footer{padding:20px 0 60px;color:#7fa28a;text-align:center;font-size:12px}
 @media(max-width:760px){
 .countdown-head{align-items:flex-start;flex-direction:column}
-.countdown-grid{grid-template-columns:repeat(5,minmax(0,1fr));gap:6px}
+.countdown-grid{grid-template-columns:repeat(4,minmax(0,1fr));gap:6px}
 .count-unit{padding:12px 3px;border-radius:16px}
 .count-unit strong{font-size:22px}
 .count-unit span{font-size:7px;letter-spacing:.07em}
@@ -142,8 +142,7 @@ footer{padding:20px 0 60px;color:#7fa28a;text-align:center;font-size:12px}
     <div class="live-dot"><span></span> LIVE CLOCK</div>
   </div>
 
-  <div class="countdown-grid" id="doomsdayCountdown">
-    <div class="count-unit"><strong id="cdMonths">0</strong><span>MONTHS</span></div>
+  <div class="countdown-grid official-style" id="doomsdayCountdown">
     <div class="count-unit"><strong id="cdDays">0</strong><span>DAYS</span></div>
     <div class="count-unit"><strong id="cdHours">0</strong><span>HOURS</span></div>
     <div class="count-unit"><strong id="cdMinutes">0</strong><span>MINUTES</span></div>
@@ -242,49 +241,38 @@ function setOrder(mode){orderMode=mode;document.getElementById("scheduleOrder").
 document.getElementById("scheduleOrder").onclick=()=>setOrder("preferred");
 document.getElementById("releaseOrder").onclick=()=>setOrder("release");
 document.getElementById("timelineOrder").onclick=()=>setOrder("timeline");
-/* Standalone Doomsday countdown:
-   - Uses the browser's current clock, not the YouTube player.
-   - Recalculates from Date.now() every second, so it cannot accumulate timer drift.
-   - Re-syncs immediately when the tab becomes visible again.
-   - Uses calendar-aware month calculation like a conventional countdown. */
-const DOOMSDAY_TARGET = new Date("2026-12-18T00:00:00");
-function calendarMonthsBetween(start, end){
-  let months = (end.getFullYear()-start.getFullYear())*12 + (end.getMonth()-start.getMonth());
-  let anchor = new Date(start);
-  anchor.setMonth(anchor.getMonth()+months);
-  if(anchor > end){
-    months--;
-    anchor = new Date(start);
-    anchor.setMonth(anchor.getMonth()+months);
-  }
-  return {months, anchor};
-}
+/* Official-style Doomsday countdown.
+   Marvel's live Doomsday Clock counts down to December 18, 2026.
+   Use a fixed UTC target so the countdown is not shifted by the visitor's
+   local timezone. This keeps the clock aligned across devices and countries. */
+const DOOMSDAY_TARGET = Date.parse("2026-12-18T00:00:00Z");
+
 function updateDoomsdayCountdown(){
-  const now = new Date();
-  const target = DOOMSDAY_TARGET;
-  const ids = ["cdMonths","cdDays","cdHours","cdMinutes","cdSeconds"];
-  if(now >= target){
+  const remaining = DOOMSDAY_TARGET - Date.now();
+  const ids = ["cdDays","cdHours","cdMinutes","cdSeconds"];
+
+  if(remaining <= 0){
     ids.forEach(id=>document.getElementById(id).textContent="0");
-    document.getElementById("countdownStatus").textContent="Avengers: Doomsday day has arrived.";
+    document.getElementById("countdownStatus").textContent =
+      "Avengers: Doomsday is here.";
     return;
   }
-  const m = calendarMonthsBetween(now, target);
-  let remaining = target.getTime() - m.anchor.getTime();
-  const days = Math.floor(remaining/86400000); remaining -= days*86400000;
-  const hours = Math.floor(remaining/3600000); remaining -= hours*3600000;
-  const minutes = Math.floor(remaining/60000); remaining -= minutes*60000;
-  const seconds = Math.floor(remaining/1000);
 
-  document.getElementById("cdMonths").textContent=m.months;
-  document.getElementById("cdDays").textContent=days;
-  document.getElementById("cdHours").textContent=String(hours).padStart(2,"0");
-  document.getElementById("cdMinutes").textContent=String(minutes).padStart(2,"0");
-  document.getElementById("cdSeconds").textContent=String(seconds).padStart(2,"0");
+  let ms = remaining;
+  const days = Math.floor(ms / 86400000); ms -= days * 86400000;
+  const hours = Math.floor(ms / 3600000); ms -= hours * 3600000;
+  const minutes = Math.floor(ms / 60000); ms -= minutes * 60000;
+  const seconds = Math.floor(ms / 1000);
 
-  const totalDays = Math.floor((target.getTime()-now.getTime())/86400000);
+  document.getElementById("cdDays").textContent = String(days);
+  document.getElementById("cdHours").textContent = String(hours).padStart(2,"0");
+  document.getElementById("cdMinutes").textContent = String(minutes).padStart(2,"0");
+  document.getElementById("cdSeconds").textContent = String(seconds).padStart(2,"0");
+
   document.getElementById("countdownStatus").textContent =
-    `${totalDays.toLocaleString()} total days remaining • Updates automatically every second`;
+    "Official release countdown • updates every second";
 }
+
 updateDoomsdayCountdown();
 setInterval(updateDoomsdayCountdown,1000);
 document.addEventListener("visibilitychange",()=>{
@@ -295,7 +283,7 @@ window.addEventListener("focus",updateDoomsdayCountdown);
 update();render();
 if ("serviceWorker" in navigator) {
   window.addEventListener("load", () => {
-    navigator.serviceWorker.register("./sw.js", { scope: "./" }).catch(() => {});
+    navigator.serviceWorker.register("./sw.js", {scope:"./"}).catch(()=>{});
   });
 }
 </script>
