@@ -1,15 +1,25 @@
 {
   "name": "Road to Avengers: Doomsday",
   "short_name": "Doomsday Tracker",
-  "description": "Road to Avengers: Doomsday — Community Watch Tracker.",
+  "description": "Community Watch Tracker for the Road to Avengers: Doomsday.",
   "start_url": "./",
   "scope": "./",
   "display": "standalone",
   "orientation": "portrait-primary",
   "background_color": "#020b05",
-  "theme_color": "#39ff14",
+  "theme_color": "#020b05",
   "icons": [
-    {"src":"./icon-192.png","sizes":"192x192","type":"image/png","purpose":"any maskable"},
-    {"src":"./icon-512.png","sizes":"512x512","type":"image/png","purpose":"any maskable"}
+    {
+      "src": "./icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "./icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
   ]
 }
