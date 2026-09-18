@@ -3,7 +3,9 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<meta name="theme-color" content="#201126">
+<meta name="theme-color" content="#39ff14">
+<link rel="manifest" href="./manifest.json">
+<link rel="apple-touch-icon" href="./icon-192.png">
 <meta name="description" content="Road to Avengers: Doomsday — Community Watch Tracker.">
 <title>Road to Avengers: Doomsday</title>
 <style>
@@ -290,6 +292,11 @@ document.addEventListener("visibilitychange",()=>{
 window.addEventListener("focus",updateDoomsdayCountdown);
 
 update();render();
+if ("serviceWorker" in navigator) {
+  window.addEventListener("load", () => {
+    navigator.serviceWorker.register("./sw.js", { scope: "./" }).catch(() => {});
+  });
+}
 </script>
 </body>
 </html>
